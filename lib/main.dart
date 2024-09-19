@@ -30,6 +30,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final String _area = "新宿";
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +45,12 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Image.network(
               "https://www.hituji.jp/img/comret/tokyo/nakano/vanessa-koenji/016.jpg",
+            ),
+            ElevatedButton(
+              onPressed: null,
+              child: Text(
+                _area,
+              ),
             ),
           ],
         ),
