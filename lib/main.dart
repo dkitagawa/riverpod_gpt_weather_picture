@@ -42,9 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'test',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Image.network(
+              "https://www.hituji.jp/img/comret/tokyo/nakano/vanessa-koenji/016.jpg",
             ),
           ],
         ),
