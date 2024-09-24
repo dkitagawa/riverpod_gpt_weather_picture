@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Image.network(
               "https://www.hituji.jp/img/comret/tokyo/nakano/vanessa-koenji/016.jpg",
             ),
-            FloatingActionButton(
+            const FloatingActionButton(
               backgroundColor: Colors.yellow,
               onPressed: null,
               child: Icon(Icons.edit),
