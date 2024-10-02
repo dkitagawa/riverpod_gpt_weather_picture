@@ -1,6 +1,9 @@
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  OpenAI.apiKey = 'REMOVED';
+
   runApp(const MyApp());
 }
 
@@ -31,6 +34,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final String _area = "新宿";
+  final String imageUrl = '';
+
+  generateImage('A cute cat playing with a ball of yarn');
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.network(
-              "https://www.hituji.jp/img/comret/tokyo/nakano/vanessa-koenji/016.jpg",
+              imageUrl,
             ),
             const FloatingActionButton(
               backgroundColor: Colors.yellow,
@@ -55,5 +61,26 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+}
+
+Future<void> generateImage(String prompt) async {
+  String? imageUrl = '';
+
+  try {
+    final image = await OpenAI.instance.image.create(
+      prompt: prompt,
+      n: 1,
+      size: OpenAIImageSize.size1024,
+      responseFormat: OpenAIImageResponseFormat.url,
+    );
+    imageUrl = image.data.first.url;
+
+    setState((){
+      imageUrl;
+    });
+
+  } catch (e) {
+    print('エラーが発生しました: $e');
   }
 }
