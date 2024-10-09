@@ -114,6 +114,17 @@ class MyHomePage extends ConsumerWidget {
                 left: 25,
                 right: 25,
               ),
+              // 生成された画像の表示
+              child: providerValue == ''
+                  ? const Text('')
+                  : Image.network(providerValue),
+            ),
+            const SizedBox(height: 30),
+            Container(
+              padding: const EdgeInsets.only(
+                left: 25,
+                right: 25,
+              ),
               child: TextField(
                 controller: _messageController,
                 maxLines: 1,
@@ -139,17 +150,6 @@ class MyHomePage extends ConsumerWidget {
                     },  
                   ),
                 ]
-            ),
-            const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.only(
-                left: 25,
-                right: 25,
-              ),
-              // 生成された画像の表示
-              child: providerValue == ''
-                  ? const Text('')
-                  : Image.network(providerValue),
             ),
           ],
         ),
