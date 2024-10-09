@@ -15,9 +15,12 @@ class Response extends Notifier<String> {
     state = url;
   }
 }
-final responseProvider = NotifierProvider<Response, String>(() {
-  return Response();
-});
+
+final responseProvider = NotifierProvider<Response, String>(
+  () {
+    return Response();
+  }
+);
 
 
 // DALL·E 3 API実行
@@ -25,7 +28,7 @@ Future<void> apiRequest(String message, WidgetRef ref) async {
   String responseUrl;
   final providerNotifier = ref.watch(responseProvider.notifier);
   // 取得したAPIキーを入れる
-  const apiKey = '{OpenAIのAPIキー}';
+  const apiKey = 'REMOVED';
   const domain = 'api.openai.com';
   const path = 'v1/images/generations';
   // モデルの指定
@@ -88,38 +91,65 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends ConsumerWidget {
-  const MyHomePage({super.key, required this.title});
+  MyHomePage({super.key, required this.title});
   final String title;
   final _messageController = TextEditingController();
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final providerValue = ref.watch(responseProvider);
+    final providerNotifier = ref.watch(responseProvider.notifier);
 
-class _MyHomePageState extends State<MyHomePage> {
-  final String _area = "新宿";
-  final String imageUrl = '';
-
-  generateImage('A cute cat playing with a ball of yarn');
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.network(
-              imageUrl,
+            Container(
+              padding: const EdgeInsets.only(
+                left: 25,
+                right: 25,
+              ),
+              child: TextField(
+                controller: _messageController,
+                maxLines: 1,
+                decoration: const InputDecoration(
+                  hintText: 'メッセージを入力',
+                  hintStyle: TextStyle(color: Colors.black54),
+                ),
+              ),
             ),
-            const FloatingActionButton(
-              backgroundColor: Colors.yellow,
-              onPressed: null,
-              child: Icon(Icons.edit),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    child: const Text('AI画像生成実行'),
+                    onPressed: (){
+                      var msg = _messageController.text.trim();
+                      if(msg.isEmpty){
+                        _messageController.clear();
+                        return; 
+                      }
+                      providerNotifier.clear();
+                        apiRequest(msg, ref);
+                    },  
+                  ),
+                ]
+            ),
+            const SizedBox(height: 30),
+            Container(
+              padding: const EdgeInsets.only(
+                left: 25,
+                right: 25,
+              ),
+              // 生成された画像の表示
+              child: providerValue == ''
+                  ? const Text('')
+                  : Image.network(providerValue),
             ),
           ],
         ),
@@ -127,3 +157,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
