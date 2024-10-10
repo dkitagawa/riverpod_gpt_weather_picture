@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class Response extends Notifier<String> {
   @override
@@ -129,7 +130,7 @@ class MyHomePage extends ConsumerWidget {
                 controller: _messageController,
                 maxLines: 1,
                 decoration: const InputDecoration(
-                  hintText: 'メッセージを入力',
+                  hintText: '地域を入力',
                   hintStyle: TextStyle(color: Colors.black54),
                 ),
               ),
@@ -140,13 +141,23 @@ class MyHomePage extends ConsumerWidget {
                   ElevatedButton(
                     child: const Text('AI画像生成実行'),
                     onPressed: (){
-                      var msg = _messageController.text.trim();
-                      if(msg.isEmpty){
+                      var areaForSearch = _messageController.text.trim();
+                      var dateForSearch = '今日';
+                      var prompt = '';
+
+                      if(areaForSearch.isEmpty){
                         _messageController.clear();
                         return; 
                       }
+
+                      DateTime now = DateTime.now();
+                      DateFormat outputFormat = DateFormat('yyyy-MM-dd');
+                      dateForSearch = outputFormat.format(now);
+
+                      prompt = "${areaForSearch}の${dateForSearch}の1日の天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名、日付、最高気温、最低気温、降水確率をコンパクトにまとめて表記。";
+
                       providerNotifier.clear();
-                        apiRequest(msg, ref);
+                        apiRequest(prompt, ref);
                     },  
                   ),
                 ]
