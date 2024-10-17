@@ -144,7 +144,7 @@ class MyHomePage extends ConsumerWidget {
                       var areaForSearch = _messageController.text.trim();
                       var dateForSearch = '今日';
                       var prompt = '天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名、日付、最高気温、最低気温、降水確率をコンパクトにまとめて表記。';
-
+                      
                       if(areaForSearch.isEmpty){
                         _messageController.clear();
                         return; 
