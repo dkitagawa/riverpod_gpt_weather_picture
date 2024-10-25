@@ -65,6 +65,24 @@ Future<void> apiRequest(String message, WidgetRef ref) async {
   }
 }
 
+void loadWeatherImage(String area, String date, WidgetRef ref)  {
+  var prompt = "天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名、日付、最高気温、最低気温、降水確率をコンパクトにまとめて表記。";
+
+  if (area == "") {
+    area = "東京";
+  }
+  if (date == "") {
+    date = "今日";
+  }
+  //あれ、なんか変だな
+  DateTime now = DateTime.now();
+  DateFormat outputFormat = DateFormat('yyyy-MM-dd');
+  date = outputFormat.format(now);
+
+  prompt = "$dateの$areaの$prompt";
+  apiRequest(prompt, ref);
+}
+
 void main() {
   runApp(
     const ProviderScope(
@@ -144,10 +162,14 @@ class WeatherImage extends ConsumerWidget {
 class InputRow extends ConsumerWidget {
   InputRow({super.key});
   final _messageController = TextEditingController();
+  String _area = "";
+  String _date = "";
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final providerNotifier = ref.watch(responseProvider.notifier);
+
+    loadWeatherImage(_area, _date, ref);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -165,26 +187,20 @@ class InputRow extends ConsumerWidget {
         ElevatedButton(
           child: const Text('AI画像生成実行'),
           onPressed: () {
-            var areaForSearch = _messageController.text.trim();
-            var dateForSearch = "今日";
-            var prompt = "天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名、日付、最高気温、最低気温、降水確率をコンパクトにまとめて表記。";
+            _area = _messageController.text.trim();
+            _date = "今日";
 
-          if (areaForSearch.isEmpty) {
-            _messageController.clear();
-            return;
-          }
+            if (_area.isEmpty) {
+              _messageController.clear();
+              return;
+            }
 
-          DateTime now = DateTime.now();
-          DateFormat outputFormat = DateFormat('yyyy-MM-dd');
-          dateForSearch = outputFormat.format(now);
-
-          prompt = "$dateForSearchの$areaForSearchの$prompt";
-
-          providerNotifier.clear();
-          apiRequest(prompt, ref);
+            providerNotifier.clear();
+            loadWeatherImage(_area, _date, ref);
           },
         ),
       ]
     );
   }
 }
+
