@@ -5,5 +5,5 @@ part 'area_for_search.g.dart';
 @riverpod
 class AreaForSearch extends _$AreaForSearch {
   @override
-  int build() => '東京';
+  String build() => "東京";
 }

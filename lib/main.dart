@@ -23,7 +23,6 @@ final responseProvider = NotifierProvider<Response, String>(
   }
 );
 
-
 // DALL·E 3 API実行
 Future<void> apiRequest(String message, WidgetRef ref) async {
   String responseUrl;
@@ -86,20 +85,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
         useMaterial3: true,
       ),
-      home: MyHomePage(title: 'WeatherPicture'),
+      home: const MyHomePage(title: 'WeatherPicture'),
     );
   }
 }
 
-class MyHomePage extends ConsumerWidget {
-  MyHomePage({super.key, required this.title});
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key, required this.title});
   final String title;
-  final _messageController = TextEditingController();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final providerValue = ref.watch(responseProvider);
-    final providerNotifier = ref.watch(responseProvider.notifier);
+  Widget build(BuildContext context) {
 
     return Scaffold(
       appBar: AppBar(
@@ -116,9 +112,7 @@ class MyHomePage extends ConsumerWidget {
                 right: 25,
               ),
               // 生成された画像の表示
-              child: providerValue == ''
-                  ? const Text('')
-                  : Image.network(providerValue),
+              child: const WeatherImage(),
             ),
             const SizedBox(height: 30),
             Container(
@@ -126,45 +120,71 @@ class MyHomePage extends ConsumerWidget {
                 left: 25,
                 right: 25,
               ),
-              child: TextField(
-                controller: _messageController,
-                maxLines: 1,
-                decoration: const InputDecoration(
-                  hintText: '地域を入力',
-                  hintStyle: TextStyle(color: Colors.black54),
-                ),
-              ),
-            ),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    child: const Text('AI画像生成実行'),
-                    onPressed: (){
-                      var areaForSearch = _messageController.text.trim();
-                      var dateForSearch = '今日';
-                      var prompt = '天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名、日付、最高気温、最低気温、降水確率をコンパクトにまとめて表記。';
-                      
-                      if(areaForSearch.isEmpty){
-                        _messageController.clear();
-                        return; 
-                      }
-
-                      DateTime now = DateTime.now();
-                      DateFormat outputFormat = DateFormat('yyyy-MM-dd');
-                      dateForSearch = outputFormat.format(now);
-
-                      prompt = "${dateForSearch}の${areaForSearch}の"+prompt;
-
-                      providerNotifier.clear();
-                        apiRequest(prompt, ref);
-                    },  
-                  ),
-                ]
+              child: InputRow(),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class WeatherImage extends ConsumerWidget {
+  const WeatherImage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final providerValue = ref.watch(responseProvider);
+    return providerValue == ''
+        ? const Text('')
+        : Image.network(providerValue);
+  }
+}
+
+class InputRow extends ConsumerWidget {
+  InputRow({super.key});
+  final _messageController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final providerNotifier = ref.watch(responseProvider.notifier);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _messageController,
+            maxLines: 1,
+            decoration: const InputDecoration(
+              hintText: '地域を入力',
+              hintStyle: TextStyle(color: Colors.black54),
+            ),
+          ),
+        ),
+        ElevatedButton(
+          child: const Text('AI画像生成実行'),
+          onPressed: () {
+            var areaForSearch = _messageController.text.trim();
+            var dateForSearch = "今日";
+            var prompt = "天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名、日付、最高気温、最低気温、降水確率をコンパクトにまとめて表記。";
+
+          if (areaForSearch.isEmpty) {
+            _messageController.clear();
+            return;
+          }
+
+          DateTime now = DateTime.now();
+          DateFormat outputFormat = DateFormat('yyyy-MM-dd');
+          dateForSearch = outputFormat.format(now);
+
+          prompt = "$dateForSearchの$areaForSearchの$prompt";
+
+          providerNotifier.clear();
+           apiRequest(prompt, ref);
+          },
+        ),
+      ]
     );
   }
 }
