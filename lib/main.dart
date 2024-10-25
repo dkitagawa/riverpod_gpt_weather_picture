@@ -162,14 +162,12 @@ class WeatherImage extends ConsumerWidget {
 class InputRow extends ConsumerWidget {
   InputRow({super.key});
   final _messageController = TextEditingController();
-  String _area = "";
-  String _date = "";
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final providerNotifier = ref.watch(responseProvider.notifier);
 
-    loadWeatherImage(_area, _date, ref);
+    loadWeatherImage("", "", ref);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -187,16 +185,16 @@ class InputRow extends ConsumerWidget {
         ElevatedButton(
           child: const Text('AI画像生成実行'),
           onPressed: () {
-            _area = _messageController.text.trim();
-            _date = "今日";
+            final area = _messageController.text.trim();
+            final date = "今日";
 
-            if (_area.isEmpty) {
+            if (area.isEmpty) {
               _messageController.clear();
               return;
             }
 
             providerNotifier.clear();
-            loadWeatherImage(_area, _date, ref);
+            loadWeatherImage(area, date, ref);
           },
         ),
       ]
