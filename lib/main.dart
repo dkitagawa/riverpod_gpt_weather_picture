@@ -181,7 +181,7 @@ class InputRow extends ConsumerWidget {
           prompt = "$dateForSearchの$areaForSearchの$prompt";
 
           providerNotifier.clear();
-           apiRequest(prompt, ref);
+          apiRequest(prompt, ref);
           },
         ),
       ]
