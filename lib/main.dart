@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
+import 'package:riverpod_gpt_weather_picture/area_for_search.dart';
+import 'package:riverpod_gpt_weather_picture/date_for_search.dart';
 
 class Response extends Notifier<String> {
   @override
@@ -66,18 +67,7 @@ Future<void> apiRequest(String message, WidgetRef ref) async {
 }
 
 void loadWeatherImage(String area, String date, WidgetRef ref)  {
-  var prompt = "天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名、日付、最高気温、最低気温、降水確率をコンパクトにまとめて表記。";
-
-  if (area == "") {
-    area = "東京";
-  }
-  if (date == "") {
-    date = "今日";
-  }
-  //あれ、なんか変だな
-  DateTime now = DateTime.now();
-  DateFormat outputFormat = DateFormat('yyyy-MM-dd');
-  date = outputFormat.format(now);
+  var prompt = "天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名と日付を大きく記載してください。最高／最低気温と降水確率は一箇所にコンパクトにまとめて表記してください。対象地域の名産品や名物を、生成するイメージに少しだけ盛り込んでください。";
 
   prompt = "$dateの$areaの$prompt";
   apiRequest(prompt, ref);
@@ -166,8 +156,10 @@ class InputRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final providerNotifier = ref.watch(responseProvider.notifier);
+    final String areaForSearch = ref.watch(areaForSearchProvider);
+    final String dateForSearch = ref.watch(dateForSearchProvider);
 
-    loadWeatherImage("", "", ref);
+    loadWeatherImage(areaForSearch, dateForSearch, ref);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -183,18 +175,20 @@ class InputRow extends ConsumerWidget {
           ),
         ),
         ElevatedButton(
-          child: const Text('AI画像生成実行'),
+          child: const Text('AI画像生成'),
           onPressed: () {
-            final area = _messageController.text.trim();
-            final date = "今日";
+            final String area = _messageController.text.trim();
 
             if (area.isEmpty) {
               _messageController.clear();
               return;
             }
 
+            ref.read(areaForSearchProvider.notifier).setArea(area);
+            //ref.read(dateForSearchProvider.notifier)a.setDate(date);
+
             providerNotifier.clear();
-            loadWeatherImage(area, date, ref);
+            loadWeatherImage(areaForSearch, dateForSearch, ref);
           },
         ),
       ]
