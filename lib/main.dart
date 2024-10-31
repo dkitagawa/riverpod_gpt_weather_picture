@@ -67,7 +67,7 @@ Future<void> apiRequest(String message, WidgetRef ref) async {
 }
 
 void loadWeatherImage(String area, String date, WidgetRef ref)  {
-  var prompt = "天気を、地域のシンボリックな建物を主役にして地上目線で表現してください。指定された地域名、日付、最高気温、最低気温、降水確率を個別に取得してから画像生成を始めてください。指定された地域名と日付を大きく記載してください。最高／最低気温と降水確率は一箇所にコンパクトにまとめて表記してください。対象地域の名産品や名物を、生成するイメージに少しだけ盛り込んでください。";
+  var prompt = "天気を、対象地域のシンボリックな建物と名産品や名物を主役にして、人間もすこし盛り込んで表現してください。イメージは空撮からの視点ではなく、地上からの視点で表現してください。指定された地域名、日付（M/dの形式）、最高気温、最低気温、降水確率を個別に取得し、指定された地域名と指定された日付を大きく表示してください。最高／最低気温と降水確率は一箇所にコンパクトにまとめて表記してください。";
 
   prompt = "$dateの$areaの$prompt";
   apiRequest(prompt, ref);
@@ -195,4 +195,3 @@ class InputRow extends ConsumerWidget {
     );
   }
 }
-
