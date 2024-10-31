@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'WeatherPicture'),
+      home: const MyHomePage(title: '天気予報'),
     );
   }
 }
@@ -189,7 +189,7 @@ class InputRow extends ConsumerWidget {
   }
 
   void loadWeatherImage(String area, String date, WidgetRef ref)  {
-    var prompt = "指定された地域の、指定された日付の天気予報を取りまとめて画像を生成してください。画像の中の地域の人物たちを用いて、マンガか映画の有名なシーンをオマージュしてください。【画像の主役】空撮ではなく地上からの視点で表現してください。対象地域のシンボリックな建物・名産品・名物を主役にして、人間もすこし盛り込んで表現してください。【画像を作る目的】対象地域の、対象日付の天気を確認すること【情報の表示】地域名を1番目、日付をMM/dd形式に変換して2番目に大きく表示してください。また、最高／最低気温と降水確率を対象の日付の1日分だけコンパクトにまとめて表示してください。";
+    var prompt = "指定された地域の、指定された日付の天気予報を取りまとめて画像を生成してください。【コンセプト】空撮ではなく地上に立つ人間の視点で対象地域を描きます。対象地域のシンボリックな建物・名産品・名物・人間を盛り込みます。マンガか映画の有名なシーンを大胆にオマージュしてください。人間の描写が印象的だと良いです。【各情報の表示サイズ】情報の表示サイズは以下の順：地域名>>日付（MM/dd形式に変換して表示）>>>>>>>>>>>>対象日付の最高／最低気温と降水確率";
 
     prompt = "$prompt。対象地域：$area。対象日付：$date";
     apiRequest(prompt, ref);
