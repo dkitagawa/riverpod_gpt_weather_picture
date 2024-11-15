@@ -5,9 +5,9 @@ part 'date_for_search.g.dart';
 @riverpod
 class DateForSearch extends _$DateForSearch {
   @override
-  String build() => "今日";
+  DateTime build() => DateTime.now();
 
-  void setDate(String date) {
+  void setDate(DateTime date) {
     state = date;
   }
 }

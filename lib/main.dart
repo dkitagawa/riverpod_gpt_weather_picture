@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_gpt_weather_picture/area_for_search.dart';
 import 'package:riverpod_gpt_weather_picture/date_for_search.dart';
+import 'package:intl/intl.dart';
 
 class Response extends Notifier<String> {
   @override
@@ -144,15 +145,18 @@ class WeatherImage extends ConsumerWidget {
 
 class InputRow extends ConsumerWidget {
   InputRow({super.key});
-  final _messageController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final providerNotifier = ref.watch(responseProvider.notifier);
     final String areaForSearch = ref.watch(areaForSearchProvider);
-    final String dateForSearch = ref.watch(dateForSearchProvider);
+    final DateTime dateForSearch = ref.watch(dateForSearchProvider);
 
     loadWeatherImage(areaForSearch, dateForSearch, ref);
+    _messageController.text = areaForSearch;
+    _dateController.text = DateFormat('yyyy-MM-dd').format(dateForSearch);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -167,18 +171,46 @@ class InputRow extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(width: 10),
         ElevatedButton(
-          child: const Text('AI画像生成'),
+          onPressed: () {
+            _datePicker(context, dateForSearch, ref);
+          },
+          child: const Icon(
+            Icons.calendar_month,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextField(
+            controller: _dateController,
+            maxLines: 1,
+            readOnly: true,
+            decoration: const InputDecoration(
+              hintText: '日付を入力',
+              hintStyle: TextStyle(color: Colors.black54),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        ElevatedButton(
+          child: const Text('更新'),
           onPressed: () {
             final String area = _messageController.text.trim();
+            final String date = _dateController.text;
 
             if (area.isEmpty) {
               _messageController.clear();
               return;
             }
 
+            if (date.isEmpty) {
+              _dateController.clear();
+              return;
+            }
+
             ref.read(areaForSearchProvider.notifier).setArea(area);
-            //ref.read(dateForSearchProvider.notifier)a.setDate(date);
+            ref.read(dateForSearchProvider.notifier).setDate(DateTime.parse(date));
 
             providerNotifier.clear();
             loadWeatherImage(areaForSearch, dateForSearch, ref);
@@ -188,7 +220,19 @@ class InputRow extends ConsumerWidget {
     );
   }
 
-  void loadWeatherImage(String area, String date, WidgetRef ref)  {
+  void _datePicker(BuildContext context, DateTime dateTime, WidgetRef ref) async {
+    final DateTime? datePicked = await showDatePicker(
+        context: context,
+        initialDate: dateTime,
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2030)
+    );
+    if (datePicked != null && datePicked != dateTime) {
+      ref.read(dateForSearchProvider.notifier).setDate(datePicked);
+    }
+  }
+
+  void loadWeatherImage(String area, DateTime date, WidgetRef ref)  {
     var prompt = "指定された地域の、指定された日付の天気予報を取りまとめて画像を生成してください。【コンセプト】空撮ではなく地上に立つ人間の視点で対象地域を描きます。対象地域のシンボリックな建物・名産品・名物・人間を盛り込みます。マンガか映画の有名なシーンを大胆にオマージュしてください。人間の描写が印象的だと良いです。【各情報の表示サイズ】情報の表示サイズは以下の順：地域名>>日付（MM/dd形式に変換して表示）>>>>>>>>>>>>対象日付の最高／最低気温と降水確率";
 
     prompt = "$prompt。対象地域：$area。対象日付：$date";
