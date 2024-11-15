@@ -1,71 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:riverpod_gpt_weather_picture/area_for_search.dart';
 import 'package:riverpod_gpt_weather_picture/date_for_search.dart';
-import 'package:intl/intl.dart';
-
-class Response extends Notifier<String> {
-  @override
-  String build(){
-    return '';
-  }
-  void clear() {
-    state = '';
-  }
-  void modify(String url) {
-    state = url;
-  }
-}
-
-final responseProvider = NotifierProvider<Response, String>(
-  () {
-    return Response();
-  }
-);
-
-// DALL·E 3 API実行
-Future<void> apiRequest(String message, WidgetRef ref) async {
-  String responseUrl;
-  final providerNotifier = ref.watch(responseProvider.notifier);
-  // 取得したAPIキーを入れる
-  const apiKey = 'REMOVED';
-  const domain = 'api.openai.com';
-  const path = 'v1/images/generations';
-  // モデルの指定
-  const model = 'dall-e-3';
-
-  // APIリクエスト
-  http.Response response = await http.post(
-    Uri.https(domain, path),
-    headers: <String, String>{
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $apiKey',
-    },
-    body: jsonEncode(<String, dynamic>{
-      // モデル
-      "model": model,
-      // 指示メッセージ
-      "prompt": message,
-      // 生成枚数
-      "n" : 1,
-      // 画像サイズ
-      "size": "1024x1024",
-      // クオリティ
-      "quality": "standard"
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    String responseData = utf8.decode(response.bodyBytes).toString();
-    final responseJsonData = jsonDecode(responseData);
-    responseUrl = responseJsonData['data'][0]['url'];
-    providerNotifier.modify(responseUrl);
-  } else {
-    throw Exception('Failed to load sentence');
-  }
-}
+import 'package:riverpod_gpt_weather_picture/dall_e_api_request.dart';
 
 void main() {
   runApp(
@@ -236,7 +174,7 @@ class InputRow extends ConsumerWidget {
     var prompt = "指定された地域の、指定された日付の天気予報を取りまとめて画像を生成してください。【コンセプト】空撮ではなく地上に立つ人間の視点で対象地域を描きます。対象地域のシンボリックな建物・名産品・名物・人間を盛り込みます。マンガか映画の有名なシーンを大胆にオマージュしてください。人間の描写が印象的だと良いです。【各情報の表示サイズ】情報の表示サイズは以下の順：地域名>>日付（MM/dd形式に変換して表示）>>>>>>>>>>>>対象日付の最高／最低気温と降水確率";
 
     prompt = "$prompt。対象地域：$area。対象日付：$date";
-    apiRequest(prompt, ref);
+    dallEApiRequest(prompt, ref);
   }
 
 }
