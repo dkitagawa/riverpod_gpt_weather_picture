@@ -75,8 +75,9 @@ class WeatherImage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final providerValue = ref.watch(responseProvider);
+
     return providerValue == ''
-        ? const Text('')
+        ? const CircularProgressIndicator()
         : Image.network(providerValue);
   }
 }
