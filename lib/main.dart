@@ -84,7 +84,7 @@ class WeatherImage extends ConsumerWidget {
 
 class InputRow extends ConsumerWidget {
   InputRow({super.key});
-  final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _areaController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
   @override
@@ -94,7 +94,7 @@ class InputRow extends ConsumerWidget {
     final DateTime dateForSearch = ref.watch(dateForSearchProvider);
 
     loadWeatherImage(areaForSearch, dateForSearch, ref);
-    _messageController.text = areaForSearch;
+    _areaController.text = areaForSearch;
     _dateController.text = DateFormat('yyyy-MM-dd').format(dateForSearch);
 
     return Row(
@@ -102,7 +102,7 @@ class InputRow extends ConsumerWidget {
       children: [
         Expanded(
           child: TextField(
-            controller: _messageController,
+            controller: _areaController,
             maxLines: 1,
             decoration: const InputDecoration(
               hintText: '地域を入力',
@@ -135,11 +135,11 @@ class InputRow extends ConsumerWidget {
         ElevatedButton(
           child: const Text('更新'),
           onPressed: () {
-            final String area = _messageController.text.trim();
+            final String area = _areaController.text.trim();
             final String date = _dateController.text;
 
             if (area.isEmpty) {
-              _messageController.clear();
+              _areaController.clear();
               return;
             }
 
