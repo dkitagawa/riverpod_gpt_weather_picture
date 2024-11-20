@@ -54,7 +54,7 @@ class MyHomePage extends StatelessWidget {
               // 生成された画像の表示
               child: const WeatherImage(),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.only(
                 left: 25,
@@ -127,29 +127,31 @@ class InputColumn extends ConsumerWidget {
             const SizedBox(width: 10),
           ],
         ),
-        const SizedBox(height: 10,),
+        const SizedBox(height: 20,),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {
-              },
               child: const Icon(
                 Icons.pin_drop,
               ),
+              onPressed: () {
+              },
             ),
             const SizedBox(width: 10,),
             ElevatedButton(
-              onPressed: () {
-                _datePicker(context, dateForSearch, ref);
-              },
               child: const Icon(
                 Icons.calendar_month,
               ),
+              onPressed: () {
+                _datePicker(context, dateForSearch, ref);
+              },
             ),
             const SizedBox(width: 10),
             ElevatedButton(
-              child: const Text('更新'),
+              child: const Icon(
+                Icons.camera_alt,
+              ),
               onPressed: () {
                 final String area = _areaController.text.trim();
                 if (area.isEmpty) {
