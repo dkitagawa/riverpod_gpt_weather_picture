@@ -60,7 +60,7 @@ class MyHomePage extends StatelessWidget {
                 left: 25,
                 right: 25,
               ),
-              child: InputRow(),
+              child: InputColumn(),
             ),
           ],
         ),
@@ -82,8 +82,8 @@ class WeatherImage extends ConsumerWidget {
   }
 }
 
-class InputRow extends ConsumerWidget {
-  InputRow({super.key});
+class InputColumn extends ConsumerWidget {
+  InputColumn({super.key});
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
@@ -97,63 +97,79 @@ class InputRow extends ConsumerWidget {
     _areaController.text = areaForSearch;
     _dateController.text = DateFormat('yyyy-MM-dd').format(dateForSearch);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        Expanded(
-          child: TextField(
-            controller: _areaController,
-            maxLines: 1,
-            decoration: const InputDecoration(
-              hintText: '地域を入力',
-              hintStyle: TextStyle(color: Colors.black54),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _dateController,
+                maxLines: 1,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  hintText: '日付を入力',
+                  hintStyle: TextStyle(color: Colors.black54),
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        ElevatedButton(
-          onPressed: () {
-            _datePicker(context, dateForSearch, ref);
-          },
-          child: const Icon(
-            Icons.calendar_month,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: TextField(
-            controller: _dateController,
-            maxLines: 1,
-            readOnly: true,
-            decoration: const InputDecoration(
-              hintText: '日付を入力',
-              hintStyle: TextStyle(color: Colors.black54),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _areaController,
+                maxLines: 1,
+                decoration: const InputDecoration(
+                  hintText: '地域を入力',
+                  hintStyle: TextStyle(color: Colors.black54),
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 10),
+          ],
         ),
-        const SizedBox(width: 10),
-        ElevatedButton(
-          child: const Text('更新'),
-          onPressed: () {
-            final String area = _areaController.text.trim();
-            final String date = _dateController.text;
+        const SizedBox(height: 10,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+              },
+              child: const Icon(
+                Icons.pin_drop,
+              ),
+            ),
+            const SizedBox(width: 10,),
+            ElevatedButton(
+              onPressed: () {
+                _datePicker(context, dateForSearch, ref);
+              },
+              child: const Icon(
+                Icons.calendar_month,
+              ),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton(
+              child: const Text('更新'),
+              onPressed: () {
+                final String area = _areaController.text.trim();
+                if (area.isEmpty) {
+                  _areaController.clear();
+                  return;
+                }
+                ref.read(areaForSearchProvider.notifier).setArea(area);
 
-            if (area.isEmpty) {
-              _areaController.clear();
-              return;
-            }
+                final String date = _dateController.text;
+                if (date.isEmpty) {
+                  _dateController.clear();
+                  return;
+                }
+                ref.read(dateForSearchProvider.notifier).setDate(DateTime.parse(date));
 
-            if (date.isEmpty) {
-              _dateController.clear();
-              return;
-            }
-
-            ref.read(areaForSearchProvider.notifier).setArea(area);
-            ref.read(dateForSearchProvider.notifier).setDate(DateTime.parse(date));
-
-            providerNotifier.clear();
-            loadWeatherImage(areaForSearch, dateForSearch, ref);
-          },
+                providerNotifier.clear();
+                loadWeatherImage(areaForSearch, dateForSearch, ref);
+              },
+            ),
+          ],
         ),
       ]
     );
