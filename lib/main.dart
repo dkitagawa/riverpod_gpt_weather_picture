@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: '天気予報'),
+      home: const MyHomePage(title: '天気予創'),
     );
   }
 }
