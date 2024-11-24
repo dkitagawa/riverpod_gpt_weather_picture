@@ -102,32 +102,25 @@ class InputColumn extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              child: TextField(
-                controller: _dateController,
-                maxLines: 1,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  hintText: '日付を入力',
-                  hintStyle: TextStyle(color: Colors.black54),
-                ),
+            Text(
+              _dateController.text = DateFormat('yyyy-MM-dd').format(dateForSearch),
+              style: const TextStyle(
+                color: Colors.black54,
+                fontSize: 22,
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                controller: _areaController,
-                maxLines: 1,
-                decoration: const InputDecoration(
-                  hintText: '地域を入力',
-                  hintStyle: TextStyle(color: Colors.black54),
-                ),
+            Text(
+              areaForSearch,
+              style: const TextStyle(
+                color: Colors.black54,
+                fontSize: 22,
               ),
             ),
             const SizedBox(width: 10),
           ],
         ),
-        const SizedBox(height: 20,),
+        const SizedBox(height: 30,),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -136,22 +129,51 @@ class InputColumn extends ConsumerWidget {
                 Icons.pin_drop,
               ),
               onPressed: () {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('対象エリアの指定'),
+                    content: TextField(
+                      controller: _areaController,
+                      maxLines: 1,
+                      decoration: const InputDecoration(
+                        hintText: '地域を入力',
+                        hintStyle: TextStyle(color: Colors.black54),
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          final String area = _areaController.text.trim();
+                          if (area.isEmpty) {
+                            _areaController.clear();
+                            return;
+                          }
+                          ref.read(areaForSearchProvider.notifier).setArea(area);
+                          Navigator.pop(context, 'OK');
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
             const SizedBox(width: 10,),
             ElevatedButton(
-              child: const Icon(
-                Icons.calendar_month,
-              ),
               onPressed: () {
                 _datePicker(context, dateForSearch, ref);
               },
+              child: const Icon(
+                Icons.calendar_month,
+              ),
             ),
             const SizedBox(width: 10),
             ElevatedButton(
-              child: const Icon(
-                Icons.camera_alt,
-              ),
               onPressed: () {
                 final String area = _areaController.text.trim();
                 if (area.isEmpty) {
@@ -170,6 +192,9 @@ class InputColumn extends ConsumerWidget {
                 providerNotifier.clear();
                 loadWeatherImage(areaForSearch, dateForSearch, ref);
               },
+              child: const Icon(
+                Icons.camera_alt,
+              ),
             ),
           ],
         ),
