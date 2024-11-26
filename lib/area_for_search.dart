@@ -8,7 +8,7 @@ class AreaForSearch extends _$AreaForSearch {
   String build() => "東京";
 
   void setArea(String area) {
-    state = area;
+    state = area.trim();
   }
 
 }

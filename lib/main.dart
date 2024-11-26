@@ -85,7 +85,6 @@ class WeatherImage extends ConsumerWidget {
 class InputColumn extends ConsumerWidget {
   InputColumn({super.key});
   final TextEditingController _areaController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,8 +93,7 @@ class InputColumn extends ConsumerWidget {
     final DateTime dateForSearch = ref.watch(dateForSearchProvider);
 
     loadWeatherImage(areaForSearch, dateForSearch, ref);
-    _areaController.text = areaForSearch;
-    _dateController.text = DateFormat('yyyy-MM-dd').format(dateForSearch);
+    _areaController.text = areaForSearch; //riverpod初期値の登録
 
     return Column(
       children: [
@@ -103,7 +101,7 @@ class InputColumn extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              _dateController.text = DateFormat('yyyy-MM-dd').format(dateForSearch),
+              DateFormat('yyyy-MM-dd').format(dateForSearch),
               style: const TextStyle(
                 color: Colors.black54,
                 fontSize: 22,
@@ -124,6 +122,15 @@ class InputColumn extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ElevatedButton(
+              onPressed: () {
+                _datePicker(context, dateForSearch, ref);
+              },
+              child: const Icon(
+                Icons.calendar_month,
+              ),
+            ),
+            const SizedBox(width: 10),
             ElevatedButton(
               child: const Icon(
                 Icons.pin_drop,
@@ -166,28 +173,13 @@ class InputColumn extends ConsumerWidget {
             const SizedBox(width: 10,),
             ElevatedButton(
               onPressed: () {
-                _datePicker(context, dateForSearch, ref);
-              },
-              child: const Icon(
-                Icons.calendar_month,
-              ),
-            ),
-            const SizedBox(width: 10),
-            ElevatedButton(
-              onPressed: () {
-                final String area = _areaController.text.trim();
-                if (area.isEmpty) {
-                  _areaController.clear();
+                if (areaForSearch.isEmpty) {
                   return;
                 }
-                ref.read(areaForSearchProvider.notifier).setArea(area);
 
-                final String date = _dateController.text;
-                if (date.isEmpty) {
-                  _dateController.clear();
+                if (dateForSearch == null) {
                   return;
                 }
-                ref.read(dateForSearchProvider.notifier).setDate(DateTime.parse(date));
 
                 providerNotifier.clear();
                 loadWeatherImage(areaForSearch, dateForSearch, ref);
