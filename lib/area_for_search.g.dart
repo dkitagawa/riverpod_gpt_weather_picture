@@ -6,7 +6,7 @@ part of 'area_for_search.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$areaForSearchHash() => r'c7cef32c6fb3be30d6d1b45ce9013d7ade742dc7';
+String _$areaForSearchHash() => r'b2d8dbc7727d3336c27448c72865373436722b38';
 
 /// See also [AreaForSearch].
 @ProviderFor(AreaForSearch)
