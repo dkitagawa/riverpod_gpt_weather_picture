@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_gpt_weather_picture/area_for_search.dart';
 import 'package:riverpod_gpt_weather_picture/date_for_search.dart';
-import 'package:riverpod_gpt_weather_picture/dall_e_api_request.dart';
+import 'package:riverpod_gpt_weather_picture/image_url.dart';
 
 void main() {
   runApp(
@@ -60,7 +60,7 @@ class MyHomePage extends StatelessWidget {
                 left: 25,
                 right: 25,
               ),
-              child: InputColumn(),
+              child: const InputColumn(),
             ),
           ],
         ),
@@ -74,26 +74,43 @@ class WeatherImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final providerValue = ref.watch(responseProvider);
+    final imageUrl = ref.watch(imageUrlProvider);
 
-    return providerValue == ''
-        ? const CircularProgressIndicator()
-        : Image.network(providerValue);
+    return imageUrl.when(
+      data: (imageUrl) => imageUrl == ''
+          ? const CircularProgressIndicator()
+          : Image.network(imageUrl),
+      loading: () => const CircularProgressIndicator(),
+      error: (err, stack) => Text('エラーが発生しました: $err'),
+    );
   }
 }
 
-class InputColumn extends ConsumerWidget {
-  InputColumn({super.key});
+class InputColumn extends ConsumerStatefulWidget {
+  const InputColumn({super.key});
+
+  @override
+  ConsumerState<InputColumn> createState() => _InputColumnState();
+}
+
+class _InputColumnState extends ConsumerState<InputColumn> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final String areaForSearch = ref.read(areaForSearchProvider);
+      final DateTime dateForSearch = ref.read(dateForSearchProvider);
+      ref.read(imageUrlProvider.notifier).getImageUrl(
+          areaForSearch, dateForSearch);
+    });
+  }
+
   final TextEditingController _areaController = TextEditingController();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final providerNotifier = ref.watch(responseProvider.notifier);
+  Widget build(BuildContext context) {
     final String areaForSearch = ref.watch(areaForSearchProvider);
     final DateTime dateForSearch = ref.watch(dateForSearchProvider);
-
-    _getWeatherImageUrl(areaForSearch, dateForSearch, ref);
-    _areaController.text = areaForSearch; //riverpod初期値の登録
 
     return Column(
       children: [
@@ -136,6 +153,7 @@ class InputColumn extends ConsumerWidget {
                 Icons.pin_drop,
               ),
               onPressed: () {
+                _areaController.text = areaForSearch;
                 showDialog<String>(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
@@ -176,13 +194,7 @@ class InputColumn extends ConsumerWidget {
                 if (areaForSearch.isEmpty) {
                   return;
                 }
-
-                if (dateForSearch == null) {
-                  return;
-                }
-
-                providerNotifier.clear();
-                _getWeatherImageUrl(areaForSearch, dateForSearch, ref);
+                ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch);
               },
               child: const Icon(
                 Icons.camera_alt,
@@ -205,12 +217,4 @@ class InputColumn extends ConsumerWidget {
       ref.read(dateForSearchProvider.notifier).setDate(datePicked);
     }
   }
-
-  void _getWeatherImageUrl(String area, DateTime date, WidgetRef ref)  {
-    var prompt = "指定された地域の、指定された日付の天気予報を表現する画像を生成してください。【コンセプト】空撮ではなく地上に立つ人間の視点で対象地域を天気予報の通りの状態で描きます。対象地域のシンボリックな建物・名産品・名物・人間を盛り込み、マンガか映画の有名なシーンを大胆にオマージュしてください。人物描写が印象的だと良いです。【各情報の表示サイズ】情報の表示サイズは以下の順：地域名>>日付（MM/dd形式に変換して表示）>>>>>>>>>>>>対象日付の最高／最低気温と降水確率";
-
-    prompt = "対象地域：$area。対象日付：$date。$prompt";
-    dallEApiRequest(prompt, ref);
-  }
-
 }
