@@ -135,6 +135,21 @@ class _InputColumnState extends ConsumerState<InputColumn> {
             const SizedBox(width: 10),
           ],
         ),
+        const SizedBox(height: 15,),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    "天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ",
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 19,
+                    ),
+                  ),
+                ),
+              ],
+          ),
         const SizedBox(height: 30,),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
