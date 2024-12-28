@@ -77,20 +77,14 @@ class WeatherImage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final imageUrl = ref.watch(imageUrlProvider);
 
-    debugPrint('weatherImage state: $imageUrl');
-
     return imageUrl.when(
       data: (imageUrl) {
-        debugPrint('Data received: $imageUrl');
         return Image.network(imageUrl);
       },
       loading: () {
-        debugPrint('Loading...');
         return const Center(child: CircularProgressIndicator());
       },
       error: (err, stack) {
-        debugPrint('エラー: $err');
-        debugPrint('スタックトレース: $stack');
         return Text('エラーが発生しました: $err');
       },
     );
@@ -104,11 +98,8 @@ class WeatherText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final weatherText = ref.watch(chatGPTRequestProvider);
 
-    debugPrint('weatherText state: $weatherText');
-
     return weatherText.when(
       data: (weatherText) {
-        debugPrint('Data received: $weatherText');
         return Text(
           weatherText,
           style: const TextStyle(
@@ -118,12 +109,9 @@ class WeatherText extends ConsumerWidget {
         );
       },
       loading: () {
-        debugPrint('Loading...');
         return const Center(child: CircularProgressIndicator());
       },
       error: (err, stack) {
-        debugPrint('Error: $err');
-        debugPrint('Stacktrace: $stack');
         return Text('エラーが発生しました: $err');
       },
     );
