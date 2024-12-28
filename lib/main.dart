@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:riverpod_gpt_weather_picture/area_for_search.dart';
 import 'package:riverpod_gpt_weather_picture/date_for_search.dart';
 import 'package:riverpod_gpt_weather_picture/image_url.dart';
+import 'package:riverpod_gpt_weather_picture/chat_gpt_request.dart';
 
 void main() {
   runApp(
@@ -76,12 +77,55 @@ class WeatherImage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final imageUrl = ref.watch(imageUrlProvider);
 
+    debugPrint('weatherImage state: $imageUrl');
+
     return imageUrl.when(
-      data: (imageUrl) => imageUrl == ''
-          ? const CircularProgressIndicator()
-          : Image.network(imageUrl),
-      loading: () => const CircularProgressIndicator(),
-      error: (err, stack) => Text('エラーが発生しました: $err'),
+      data: (imageUrl) {
+        debugPrint('Data received: $imageUrl');
+        return Image.network(imageUrl);
+      },
+      loading: () {
+        debugPrint('Loading...');
+        return const Center(child: CircularProgressIndicator());
+      },
+      error: (err, stack) {
+        debugPrint('エラー: $err');
+        debugPrint('スタックトレース: $stack');
+        return Text('エラーが発生しました: $err');
+      },
+    );
+  }
+}
+
+class WeatherText extends ConsumerWidget {
+  const WeatherText({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weatherText = ref.watch(chatGPTRequestProvider);
+
+    debugPrint('weatherText state: $weatherText');
+
+    return weatherText.when(
+      data: (weatherText) {
+        debugPrint('Data received: $weatherText');
+        return Text(
+          weatherText,
+          style: const TextStyle(
+            color: Colors.black54,
+            fontSize: 19,
+          ),
+        );
+      },
+      loading: () {
+        debugPrint('Loading...');
+        return const Center(child: CircularProgressIndicator());
+      },
+      error: (err, stack) {
+        debugPrint('Error: $err');
+        debugPrint('Stacktrace: $stack');
+        return Text('エラーが発生しました: $err');
+      },
     );
   }
 }
@@ -100,8 +144,8 @@ class _InputColumnState extends ConsumerState<InputColumn> {
     Future.microtask(() {
       final String areaForSearch = ref.read(areaForSearchProvider);
       final DateTime dateForSearch = ref.read(dateForSearchProvider);
-      ref.read(imageUrlProvider.notifier).getImageUrl(
-          areaForSearch, dateForSearch);
+      ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch);
+      ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch);
     });
   }
 
@@ -136,17 +180,11 @@ class _InputColumnState extends ConsumerState<InputColumn> {
           ],
         ),
         const SizedBox(height: 15,),
-          Row(
+          const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Flexible(
-                  child: Text(
-                    "天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ天気予報が入るよ",
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 19,
-                    ),
-                  ),
+                  child: WeatherText(),
                 ),
               ],
           ),
@@ -210,6 +248,7 @@ class _InputColumnState extends ConsumerState<InputColumn> {
                   return;
                 }
                 ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch);
+                ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch);
               },
               child: const Icon(
                 Icons.camera_alt,
