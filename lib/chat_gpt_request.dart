@@ -6,7 +6,6 @@ part 'chat_gpt_request.g.dart';
 
 @riverpod
 class ChatGPTRequest extends _$ChatGPTRequest {
-  static const apiKey = 'REMOVED';
   static const String domain = 'api.openai.com';
   static const String path = 'v1/chat/completions';
   static const String model = 'gpt-4o';
@@ -16,7 +15,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     return '';
   }
 
-  Future<void> getWeatherText(String area, DateTime date) async {
+  Future<void> getWeatherText(String area, DateTime date, String apiKey) async {
     var prompt = "$areaの、$dateの天気予報、最高／最低気温、降水確率を簡潔に教えて下さい。";
 
     state = const AsyncValue.loading();
@@ -52,7 +51,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
         final responceMessage = responseJsonData['choices'][0]['message']['content'];
         state = AsyncValue.data(responceMessage);
       } else {
-        throw Exception('Failed to load sentence');
+        throw Exception('Failed to load sentence on $model');
       }
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
