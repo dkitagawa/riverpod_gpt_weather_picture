@@ -6,7 +6,7 @@ part of 'image_url.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$imageUrlHash() => r'182ccaa9151681fe6b986ef6b69c5340538cb55f';
+String _$imageUrlHash() => r'08454e69bb975fdc494a6760479c7863beb6e2b2';
 
 /// See also [ImageUrl].
 @ProviderFor(ImageUrl)
