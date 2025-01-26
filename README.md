@@ -1,16 +1,5 @@
 # riverpod_gpt_weather_picture
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `.env`に`API_KEY`を定義し、OpenAIのAPIKEYの指定が必要です
+- 実行時にChatGPTとDall-eのAPIを実行します
+- ChatGPTは現時点で天気予報の取得に対応していないため、テキストは正しく表示されません※対応待ち
