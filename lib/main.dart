@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_gpt_weather_picture/area_for_search.dart';
@@ -7,8 +6,7 @@ import 'package:riverpod_gpt_weather_picture/date_for_search.dart';
 import 'package:riverpod_gpt_weather_picture/image_url.dart';
 import 'package:riverpod_gpt_weather_picture/chat_gpt_request.dart';
 
-Future<void> main() async {
-  await dotenv.load(fileName: ".env");
+void main() {
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -134,9 +132,8 @@ class _InputColumnState extends ConsumerState<InputColumn> {
     Future.microtask(() {
       final String areaForSearch = ref.read(areaForSearchProvider);
       final DateTime dateForSearch = ref.read(dateForSearchProvider);
-      final String apiKey = dotenv.env['API_KEY'] ?? 'default_api_key';
-      ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch, apiKey);
-      ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch, apiKey);
+      ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch);
+      ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch);
     });
   }
 
@@ -146,7 +143,6 @@ class _InputColumnState extends ConsumerState<InputColumn> {
   Widget build(BuildContext context) {
     final String areaForSearch = ref.watch(areaForSearchProvider);
     final DateTime dateForSearch = ref.watch(dateForSearchProvider);
-    final String apiKey = dotenv.env['API_KEY'] ?? 'default_api_key';
 
     return Column(
       children: [
@@ -239,8 +235,8 @@ class _InputColumnState extends ConsumerState<InputColumn> {
                 if (areaForSearch.isEmpty) {
                   return;
                 }
-                ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch, apiKey);
-                ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch, apiKey);
+                ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch);
+                ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch);
               },
               child: const Icon(
                 Icons.camera_alt,

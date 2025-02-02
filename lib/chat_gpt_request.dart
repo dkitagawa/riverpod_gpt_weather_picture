@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -15,11 +16,17 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     return '';
   }
 
-  Future<void> getWeatherText(String area, DateTime date, String apiKey) async {
+  Future<void> getWeatherText(String area, DateTime date) async {
     var prompt = "$areaの、$dateの天気予報、最高／最低気温、降水確率を簡潔に教えて下さい。";
 
     state = const AsyncValue.loading();
     try {
+      await dotenv.load(fileName: ".env");
+
+      final apiKey = dotenv.env['API_KEY'];  // APIキーを取得
+      if (apiKey == null || apiKey.isEmpty) {
+        throw Exception("API_KEY is missing or empty");
+      }
 
       http.Response response = await http.post(  // APIリクエスト
         Uri.https(domain, path),
