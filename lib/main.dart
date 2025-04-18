@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:riverpod_gpt_weather_picture/area_for_search.dart';
-import 'package:riverpod_gpt_weather_picture/date_for_search.dart';
-import 'package:riverpod_gpt_weather_picture/image_url.dart';
 import 'package:riverpod_gpt_weather_picture/chat_gpt_request.dart';
 
 void main() {
@@ -22,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'WeatherPicture',
-      theme: ThemeData(
+      theme: ThemeData( 
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
         useMaterial3: true,
       ),
@@ -75,11 +72,13 @@ class WeatherImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final imageUrl = ref.watch(imageUrlProvider);
+    final weatherState = ref.watch(chatGPTRequestProvider);
 
-    return imageUrl.when(
-      data: (imageUrl) {
-        return Image.network(imageUrl);
+    return weatherState.when(
+      data: (state) {
+        return state.weatherImageUrl.isNotEmpty
+            ? Image.network(state.weatherImageUrl)
+            : const Text('天気情報がありません');
       },
       loading: () {
         return const Center(child: CircularProgressIndicator());
@@ -96,12 +95,12 @@ class WeatherText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final weatherText = ref.watch(chatGPTRequestProvider);
+    final weatherState = ref.watch(chatGPTRequestProvider);
 
-    return weatherText.when(
-      data: (weatherText) {
+    return weatherState.when(
+      data: (state) {
         return Text(
-          weatherText,
+          state.weatherText,
           style: const TextStyle(
             color: Colors.black54,
             fontSize: 19,
@@ -126,125 +125,124 @@ class InputColumn extends ConsumerStatefulWidget {
 }
 
 class _InputColumnState extends ConsumerState<InputColumn> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      final String areaForSearch = ref.read(areaForSearchProvider);
-      final DateTime dateForSearch = ref.read(dateForSearchProvider);
-      ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch);
-      ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch);
-    });
-  }
-
   final TextEditingController _areaController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    final String areaForSearch = ref.watch(areaForSearchProvider);
-    final DateTime dateForSearch = ref.watch(dateForSearchProvider);
+  void initState() {
+    super.initState();
+    // build()メソッドで直接データを取得するため、ここでの呼び出しは不要
+  }
 
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              DateFormat('yyyy-MM-dd').format(dateForSearch),
-              style: const TextStyle(
-                color: Colors.black54,
-                fontSize: 22,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              areaForSearch,
-              style: const TextStyle(
-                color: Colors.black54,
-                fontSize: 22,
-              ),
-            ),
-            const SizedBox(width: 10),
-          ],
-        ),
-        const SizedBox(height: 15,),
-          const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: WeatherText(),
-                ),
-              ],
-          ),
-        const SizedBox(height: 30,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                _datePicker(context, dateForSearch, ref);
-              },
-              child: const Icon(
-                Icons.calendar_month,
-              ),
-            ),
-            const SizedBox(width: 10),
-            ElevatedButton(
-              child: const Icon(
-                Icons.pin_drop,
-              ),
-              onPressed: () {
-                _areaController.text = areaForSearch;
-                showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('対象エリアの指定'),
-                    content: TextField(
-                      controller: _areaController,
-                      maxLines: 1,
-                      decoration: const InputDecoration(
-                        hintText: '地域を入力',
-                        hintStyle: TextStyle(color: Colors.black54),
-                      ),
+  @override
+  Widget build(BuildContext context) {
+    final weatherState = ref.watch(chatGPTRequestProvider);
+
+    return weatherState.when(
+      data: (state) {
+        return Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormat('yyyy-MM-dd').format(state.date),
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 22,
                     ),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          final String area = _areaController.text.trim();
-                          if (area.isEmpty) {
-                            _areaController.clear();
-                            return;
-                          }
-                          ref.read(areaForSearchProvider.notifier).setArea(area);
-                          Navigator.pop(context, 'OK');
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
                   ),
-                );
-              },
-            ),
-            const SizedBox(width: 10,),
-            ElevatedButton(
-              onPressed: () {
-                if (areaForSearch.isEmpty) {
-                  return;
-                }
-                ref.read(imageUrlProvider.notifier).getImageUrl(areaForSearch, dateForSearch);
-                ref.read(chatGPTRequestProvider.notifier).getWeatherText(areaForSearch, dateForSearch);
-              },
-              child: const Icon(
-                Icons.camera_alt,
+                  const SizedBox(width: 10),
+                  Text(
+                    state.area,
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
               ),
-            ),
-          ],
-        ),
-      ]
+              const SizedBox(height: 15,),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: WeatherText(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _datePicker(context, state.date, ref);
+                    },
+                    child: const Icon(
+                      Icons.calendar_month,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    child: const Icon(
+                      Icons.pin_drop,
+                    ),
+                    onPressed: () {
+                      _areaController.text = state.area;
+                      showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            AlertDialog(
+                              title: const Text('対象エリアの指定'),
+                              content: TextField(
+                                controller: _areaController,
+                                maxLines: 1,
+                                decoration: const InputDecoration(
+                                  hintText: '地域を入力',
+                                  hintStyle: TextStyle(color: Colors.black54),
+                                ),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, 'Cancel'),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    final String area = _areaController.text
+                                        .trim();
+                                    if (area.isEmpty) {
+                                      _areaController.clear();
+                                      return;
+                                    }
+                                    ref.read(chatGPTRequestProvider.notifier).updateArea(area);
+                                    Navigator.pop(context, 'OK');
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 10,),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref.read(chatGPTRequestProvider.notifier).fetchResults();
+                    },
+                    child: const Icon(
+                      Icons.camera_alt,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Text('エラーが発生しました: $err'),
     );
   }
 
@@ -256,7 +254,7 @@ class _InputColumnState extends ConsumerState<InputColumn> {
         lastDate: DateTime(2030)
     );
     if (datePicked != null && datePicked != dateTime) {
-      ref.read(dateForSearchProvider.notifier).setDate(datePicked);
+      ref.read(chatGPTRequestProvider.notifier).updateDate(datePicked);
     }
   }
 }
