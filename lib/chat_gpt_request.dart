@@ -49,6 +49,9 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   static const String modelChatGPT = 'gpt-4o';
   static const String pathDallE = 'v1/images/generations';
   static const String modelDallE = 'dall-e-3';
+  
+  // デフォルト値の定数
+  static const String defaultArea = "東京";
 
   bool _isEnvLoaded = false; // .env のロード状態を管理
   // `.env` のロードを確実に1回だけ実行
@@ -58,6 +61,14 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       _isEnvLoaded = true;
     }
   }
+  
+  // 初期状態を作成する専用メソッド
+  ChatGPTRequestState _createDefaultState() {
+    return ChatGPTRequestState(
+      area: defaultArea,
+      date: DateTime.now(),
+    );
+  }
 
   @override
   Future<ChatGPTRequestState> build() async {
@@ -65,27 +76,10 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     await ensureEnvLoaded();
     
     // 初期状態を作成
-    final initialState = ChatGPTRequestState(
-      area: "東京",
-      date: DateTime.now(),
-    );
+    final initialState = _createDefaultState();
     
-    try {
-      // APIからデータを取得
-      final chatGPTFuture = fetchFromChatGPT(initialState.area, initialState.date.toString());
-      final dallEFuture = fetchFromDallE(initialState.area, initialState.date.toString());
-      
-      final results = await Future.wait([chatGPTFuture, dallEFuture]);
-      
-      // 結果を反映した状態を返す
-      return initialState.copyWith(
-        weatherText: results[0],
-        weatherImageUrl: results[1],
-      );
-    } catch (e) {
-      // エラーが発生した場合は再スロー
-      rethrow;
-    }
+    // データ取得と状態更新を行う共通メソッドを呼び出す
+    return _fetchWeatherData(initialState);
   }
 
   // エリアを更新
@@ -109,6 +103,26 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final newState = currentState.copyWith(date: newDate);
       // 状態を更新
       state = AsyncValue.data(newState);
+    }
+  }
+  
+  // データ取得の共通ロジック
+  Future<ChatGPTRequestState> _fetchWeatherData(ChatGPTRequestState baseState) async {
+    try {
+      // APIからデータを取得
+      final chatGPTFuture = fetchFromChatGPT(baseState.area, baseState.date.toString());
+      final dallEFuture = fetchFromDallE(baseState.area, baseState.date.toString());
+      
+      final results = await Future.wait([chatGPTFuture, dallEFuture]);
+      
+      // 結果を反映した状態を返す
+      return baseState.copyWith(
+        weatherText: results[0],
+        weatherImageUrl: results[1],
+      );
+    } catch (e) {
+      // エラーが発生した場合は再スロー
+      rethrow;
     }
   }
 
@@ -197,33 +211,19 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       // 環境変数の読み込みを確実に行う
       await ensureEnvLoaded();
       
-      // 最後に保存された状態またはデフォルト値を使用
-      final currentState = state.valueOrNull ?? ChatGPTRequestState(
-        area: "東京",
-        date: DateTime.now(),
-      );
+      // 最後に保存された状態またはデフォルト値を使用（万が一のフォールバック）
+      final currentState = state.valueOrNull ?? _createDefaultState();
       
-      // APIからデータを取得
-      final chatGPTFuture = fetchFromChatGPT(currentState.area, currentState.date.toString());
-      final dallEFuture = fetchFromDallE(currentState.area, currentState.date.toString());
+      // データ取得と状態更新を行う共通メソッドを呼び出す
+      final newState = await _fetchWeatherData(currentState);
       
-      final results = await Future.wait([chatGPTFuture, dallEFuture]);
-      
-      // 結果を反映した状態を設定
-      final newState = currentState.copyWith(
-        weatherText: results[0],
-        weatherImageUrl: results[1],
-      );
-      
+      // 状態を明示的に更新
       state = AsyncValue.data(newState);
       return newState;
     } catch (e, stackTrace) {
       // エラーが発生した場合
       state = AsyncValue.error(e, stackTrace);
-      return state.valueOrNull ?? ChatGPTRequestState(
-        area: "東京",
-        date: DateTime.now(),
-      );
+      return state.valueOrNull ?? _createDefaultState();
     }
   }
 }
