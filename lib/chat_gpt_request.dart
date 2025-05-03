@@ -203,7 +203,8 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     }
   }
 
-  Future<ChatGPTRequestState> fetchResults() async {
+  // 天気データを更新するメソッド
+  Future<ChatGPTRequestState> refreshWeatherData() async {
     // 明示的にloading状態に設定
     state = const AsyncValue.loading();
     

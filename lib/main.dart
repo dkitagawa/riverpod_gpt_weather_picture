@@ -230,7 +230,7 @@ class _InputColumnState extends ConsumerState<InputColumn> {
                   const SizedBox(width: 10,),
                   ElevatedButton(
                     onPressed: () {
-                      ref.read(chatGPTRequestProvider.notifier).fetchResults();
+                      ref.read(chatGPTRequestProvider.notifier).refreshWeatherData();
                     },
                     child: const Icon(
                       Icons.camera_alt,
