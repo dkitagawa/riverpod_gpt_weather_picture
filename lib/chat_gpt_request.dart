@@ -44,14 +44,19 @@ class ChatGPTRequestState {
 
 @riverpod
 class ChatGPTRequest extends _$ChatGPTRequest {
-  static const String domain = 'api.openai.com';
-  static const String pathChatGPT = 'v1/chat/completions';
-  static const String modelChatGPT = 'gpt-4o';
-  static const String pathDallE = 'v1/images/generations';
-  static const String modelDallE = 'dall-e-3';
+  // OpenAI API関連の定数
+  static const String _apiDomain = 'api.openai.com';
   
-  // デフォルト値の定数
-  static const String defaultArea = "東京";
+  // ChatGPT関連の定数
+  static const String _apiPathChatGpt = 'v1/chat/completions';
+  static const String _apiModelChatGpt = 'gpt-4o';
+  
+  // DALL-E関連の定数
+  static const String _apiPathDalle = 'v1/images/generations';
+  static const String _apiModelDalle = 'dall-e-3';
+  
+  // アプリケーションのデフォルト値
+  static const String _defaultArea = "東京";
 
   bool _isEnvLoaded = false; // .env のロード状態を管理
   // `.env` のロードを確実に1回だけ実行
@@ -65,7 +70,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   // 初期状態を作成する専用メソッド
   ChatGPTRequestState _createDefaultState() {
     return ChatGPTRequestState(
-      area: defaultArea,
+      area: _defaultArea,
       date: DateTime.now(),
     );
   }
@@ -135,14 +140,14 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     final prompt = "$areaの、$dateの天気予報、最高／最低気温、降水確率を簡潔に教えて下さい。";
 
     http.Response response = await http.post(  // APIリクエスト
-      Uri.https(domain, pathChatGPT),
+      Uri.https(_apiDomain, _apiPathChatGpt),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $apiKey',
       },
       body: jsonEncode(<String, dynamic>{
         // モデル
-        "model": modelChatGPT,
+        "model": _apiModelChatGpt,
         // 指示メッセージ
         "messages": [
           {
@@ -164,7 +169,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final responseMessage = responseJsonData['choices'][0]['message']['content'];
       return responseMessage;
     } else {
-      throw Exception('Failed to load sentence on $modelChatGPT : ${response.statusCode}');
+      throw Exception('Failed to load sentence on $_apiModelChatGpt : ${response.statusCode}');
     }
   }
 
@@ -174,14 +179,14 @@ class ChatGPTRequest extends _$ChatGPTRequest {
 
     //imageUrlからのコピーコード
     http.Response response = await http.post(  // APIリクエスト
-      Uri.https(domain, pathDallE),
+      Uri.https(_apiDomain, _apiPathDalle),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $apiKey',
       },
       body: jsonEncode(<String, dynamic>{
         // モデル
-        "model": modelDallE,
+        "model": _apiModelDalle,
         // 指示メッセージ
         "prompt": prompt,
       // 生成枚数
@@ -199,7 +204,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final imageUrl = responseJsonData['data'][0]['url'];
       return imageUrl;
     } else {
-      throw Exception('Failed to load sentence on $modelDallE : ${response.statusCode}');
+      throw Exception('Failed to load sentence on $_apiModelDalle : ${response.statusCode}');
     }
   }
 
