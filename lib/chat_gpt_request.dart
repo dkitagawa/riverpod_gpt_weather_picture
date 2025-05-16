@@ -138,10 +138,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
 
     http.Response response = await http.post(  // APIリクエスト
       Uri.https(_apiDomain, _apiPathChatGpt),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
+      headers: _createHeaders(apiKey),
       body: jsonEncode(<String, dynamic>{
         // モデル
         "model": _apiModelChatGpt,
@@ -178,10 +175,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     //imageUrlからのコピーコード
     http.Response response = await http.post(  // APIリクエスト
       Uri.https(_apiDomain, _apiPathDalle),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
+      headers: _createHeaders(apiKey),
       body: jsonEncode(<String, dynamic>{
         // モデル
         "model": _apiModelDalle,
@@ -243,5 +237,13 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   // APIキーが空の場合の例外
   Exception _createApiKeyException() {
     return Exception('API_KEY is missing or empty. Please check your .env file.');
+  }
+
+  // HTTPヘッダーの作成
+  Map<String, String> _createHeaders(String apiKey) {
+    return <String, String>{
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $apiKey',
+    };
   }
 }
