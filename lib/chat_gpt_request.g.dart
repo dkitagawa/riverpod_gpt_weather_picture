@@ -6,7 +6,7 @@ part of 'chat_gpt_request.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatGPTRequestHash() => r'0ac28c7f2e62c24428077d61a87bb9f541179436';
+String _$chatGPTRequestHash() => r'b85a3b1cc339a4822ed0995ae0d16102c051692e';
 
 /// See also [ChatGPTRequest].
 @ProviderFor(ChatGPTRequest)
