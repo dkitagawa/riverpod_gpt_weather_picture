@@ -138,22 +138,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     http.Response response = await http.post(  // APIリクエスト
       Uri.https(_apiDomain, _apiPathChatGpt),
       headers: _createHeaders(apiKey),
-      body: jsonEncode(<String, dynamic>{
-        // モデル
-        "model": _apiModelChatGpt,
-        // 指示メッセージ
-        "messages": [
-          {
-            "role": "user",
-            "content": [
-              {
-                "type": "text",
-                "text": prompt,
-              }
-            ]
-          }
-        ],
-      }),
+      body: jsonEncode(_createChatGPTRequest(prompt)),
     );
 
     if (response.statusCode == 200) {
@@ -174,18 +159,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     http.Response response = await http.post(  // APIリクエスト
       Uri.https(_apiDomain, _apiPathDalle),
       headers: _createHeaders(apiKey),
-      body: jsonEncode(<String, dynamic>{
-        // モデル
-        "model": _apiModelDalle,
-        // 指示メッセージ
-        "prompt": prompt,
-      // 生成枚数
-      "n" : 1,
-      // 画像サイズ
-      "size": "1024x1024",
-      // クオリティ
-      "quality": "standard"
-      }),
+      body: jsonEncode(_createDallERequest(prompt)),
     );
 
     if (response.statusCode == 200) {
@@ -253,5 +227,34 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   // 天気予報画像取得用のプロンプト作成
   String _createImagePrompt(String area, String date) {
     return "対象地域：$area。対象日付：$date。指定された地域の、指定された日付の天気予報を表現する画像を生成してください。【コンセプト】空撮ではなく地上に立つ人間の視点で対象地域を天気予報の通りの状態で描きます。対象地域のシンボリックな建物・名産品・名物・人間を盛り込み、マンガか映画の有名なシーンを大胆にオマージュしてください。人物が後ろ姿にならないよう注意して、生き生きとした人物の表情や活動をダイナミックに描くことを出力するイメージ全体の最優先事項としてください。【各情報の表示サイズ】情報の表示サイズは以下の順：地域名>>日付（MM/dd形式に変換して表示）>>>>>>>>>>>>対象日付の最高／最低気温と降水確率";
+  }
+
+  //ChatGPTリクエストの作成
+  Map<String, dynamic> _createChatGPTRequest(String prompt) {
+    return <String, dynamic>{
+      "model": _apiModelChatGpt,
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": prompt,
+            }
+          ]
+        }
+      ],
+    };
+  }
+
+  //DALL-Eリクエストの作成
+  Map<String, dynamic> _createDallERequest(String prompt) {
+    return <String, dynamic>{
+      "model": _apiModelDalle,
+      "prompt": prompt,
+      "n": 1,
+      "size": "1024x1024",
+      "quality": "standard"
+    };
   }
 }
