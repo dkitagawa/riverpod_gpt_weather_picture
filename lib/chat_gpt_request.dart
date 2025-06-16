@@ -141,14 +141,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       body: jsonEncode(_createChatGPTRequest(prompt)),
     );
 
-    if (response.statusCode == 200) {
-      String responseData = utf8.decode(response.bodyBytes).toString();
-      final responseJsonData = jsonDecode(responseData);
-      final responseMessage = responseJsonData['choices'][0]['message']['content'];
-      return responseMessage;
-    } else {
-      throw Exception('Failed to load sentence on $_apiModelChatGpt : ${response.statusCode}');
-    }
+    return _handleChatGPTResponse(response);
   }
 
   Future fetchFromDallE(String area, String date) async {
@@ -162,14 +155,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       body: jsonEncode(_createDallERequest(prompt)),
     );
 
-    if (response.statusCode == 200) {
-      String responseData = utf8.decode(response.bodyBytes).toString();
-      final responseJsonData = jsonDecode(responseData);
-      final imageUrl = responseJsonData['data'][0]['url'];
-      return imageUrl;
-    } else {
-      throw Exception('Failed to load sentence on $_apiModelDalle : ${response.statusCode}');
-    }
+    return _handleDallEResponse(response);
   }
 
   // 天気データを更新するメソッド
@@ -256,5 +242,29 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       "size": "1024x1024",
       "quality": "standard"
     };
+  }
+
+  // ChatGPTレスポンス処理
+  String _handleChatGPTResponse(http.Response response) {
+    if (response.statusCode == 200) {
+      String responseData = utf8.decode(response.bodyBytes).toString();
+      final responseJsonData = jsonDecode(responseData);
+      final responseMessage = responseJsonData['choices'][0]['message']['content'];
+      return responseMessage;
+    } else {
+      throw Exception('Failed to load sentence on $_apiModelChatGpt : ${response.statusCode}');
+    }
+  }
+
+  //DALL-Eレスポンス処理
+  String _handleDallEResponse(http.Response response) {
+    if (response.statusCode == 200) {
+      String responseData = utf8.decode(response.bodyBytes).toString();
+      final responseJsonData = jsonDecode(responseData);
+      final imageUrl = responseJsonData['data'][0]['url'];
+      return imageUrl;
+    } else {
+      throw Exception('Failed to load sentence on $_apiModelDalle : ${response.statusCode}');
+    }
   }
 }
