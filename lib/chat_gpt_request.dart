@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'constants.dart';
 
 part 'chat_gpt_request.g.dart';
 
@@ -44,20 +45,6 @@ class ChatGPTRequestState {
 
 @riverpod
 class ChatGPTRequest extends _$ChatGPTRequest {
-  // OpenAI API関連の定数
-  static const String _apiDomain = 'api.openai.com';
-  
-  // ChatGPT関連の定数
-  static const String _apiPathChatGpt = 'v1/chat/completions';
-  static const String _apiModelChatGpt = 'gpt-4o';
-  
-  // DALL-E関連の定数
-  static const String _apiPathDalle = 'v1/images/generations';
-  static const String _apiModelDalle = 'dall-e-3';
-  
-  // アプリケーションのデフォルト値
-  static const String _defaultArea = "東京";
-
   bool _isEnvLoaded = false; // .env のロード状態を管理
   // `.env` のロードを確実に1回だけ実行
   Future<void> ensureEnvLoaded() async {
@@ -70,7 +57,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   // 初期状態を作成する専用メソッド
   ChatGPTRequestState _createDefaultState() {
     return ChatGPTRequestState(
-      area: _defaultArea,
+      area: defaultArea,
       date: DateTime.now(),
     );
   }
@@ -136,7 +123,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     final prompt = _createWeatherPrompt(area, date);
 
     http.Response response = await http.post(  // APIリクエスト
-      Uri.https(_apiDomain, _apiPathChatGpt),
+      Uri.https(apiDomain, apiPathChatGpt),
       headers: _createHeaders(apiKey),
       body: jsonEncode(_createChatGPTRequest(prompt)),
     );
@@ -150,7 +137,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
 
     //imageUrlからのコピーコード
     http.Response response = await http.post(  // APIリクエスト
-      Uri.https(_apiDomain, _apiPathDalle),
+      Uri.https(apiDomain, apiPathDalle),
       headers: _createHeaders(apiKey),
       body: jsonEncode(_createDallERequest(prompt)),
     );
@@ -218,7 +205,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   //ChatGPTリクエストの作成
   Map<String, dynamic> _createChatGPTRequest(String prompt) {
     return <String, dynamic>{
-      "model": _apiModelChatGpt,
+      "model": apiModelChatGpt,
       "messages": [
         {
           "role": "user",
@@ -236,7 +223,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   //DALL-Eリクエストの作成
   Map<String, dynamic> _createDallERequest(String prompt) {
     return <String, dynamic>{
-      "model": _apiModelDalle,
+      "model": apiModelDalle,
       "prompt": prompt,
       "n": 1,
       "size": "1024x1024",
@@ -252,7 +239,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final responseMessage = responseJsonData['choices'][0]['message']['content'];
       return responseMessage;
     } else {
-      throw Exception('Failed to load sentence on $_apiModelChatGpt : ${response.statusCode}');
+      throw Exception('Failed to load sentence on $apiModelChatGpt : ${response.statusCode}');
     }
   }
 
@@ -264,7 +251,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final imageUrl = responseJsonData['data'][0]['url'];
       return imageUrl;
     } else {
-      throw Exception('Failed to load sentence on $_apiModelDalle : ${response.statusCode}');
+      throw Exception('Failed to load sentence on $apiModelDalle : ${response.statusCode}');
     }
   }
 }
