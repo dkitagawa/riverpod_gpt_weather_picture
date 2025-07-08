@@ -130,8 +130,6 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   // =============================================================================
   
   // Core method to fetch weather data from both APIs
-
-  // データ取得の共通ロジック
   Future<ChatGPTRequestState> _fetchWeatherData(ChatGPTRequestState baseState) async {
     try {
       // APIからデータを取得
@@ -209,7 +207,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
   // API HELPER METHODS
   // =============================================================================
   
-  // Retrieves and validates API key from 
+  // Retrieves and validates API key from environment variables
   String _getApiKey() {
     final String apiKey = dotenv.env['API_KEY'] ?? '';
     if (apiKey.isEmpty) {
