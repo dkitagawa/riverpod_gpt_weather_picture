@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'constants.dart';
+import 'error_messages.dart';
 
 part 'chat_gpt_request.g.dart';
 
@@ -154,13 +155,16 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     final String apiKey = _getApiKey();
     final prompt = _createWeatherPrompt(area, date);
 
-    http.Response response = await http.post(  // APIリクエスト
-      Uri.https(apiDomain, apiPathChatGpt),
-      headers: _createHeaders(apiKey),
-      body: jsonEncode(_createChatGPTRequest(prompt)),
-    );
-
-    return _handleChatGPTResponse(response);
+    try {
+      http.Response response = await http.post(  // APIリクエスト
+        Uri.https(apiDomain, apiPathChatGpt),
+        headers: _createHeaders(apiKey),
+        body: jsonEncode(_createChatGPTRequest(prompt)),
+      );
+      return _handleChatGPTResponse(response);
+    } catch (e) {
+      throw Exception(ErrorMessages.apiConnectionError);
+    }
   }
 
   // Fetches weather image from DALL-E API
@@ -168,14 +172,16 @@ class ChatGPTRequest extends _$ChatGPTRequest {
     final String apiKey = _getApiKey();
     final prompt = _createImagePrompt(area, date);
 
-    //imageUrlからのコピーコード
-    http.Response response = await http.post(  // APIリクエスト
-      Uri.https(apiDomain, apiPathDalle),
-      headers: _createHeaders(apiKey),
-      body: jsonEncode(_createDallERequest(prompt)),
-    );
-
-    return _handleDallEResponse(response);
+    try {
+      http.Response response = await http.post(  // APIリクエスト
+        Uri.https(apiDomain, apiPathDalle),
+        headers: _createHeaders(apiKey),
+        body: jsonEncode(_createDallERequest(prompt)),
+      );
+      return _handleDallEResponse(response);
+    } catch (e) {
+      throw Exception(ErrorMessages.apiConnectionError);
+    }
   }
 
   // Public method to manually refresh weather data
@@ -218,7 +224,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
 
   // Creates exception for missing API key
   Exception _createApiKeyException() {
-    return Exception('API_KEY is missing or empty. Please check your .env file.');
+    return Exception(ErrorMessages.apiKeyMissingError);
   }
 
   // Creates HTTP headers for API requests
@@ -288,7 +294,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final responseMessage = responseJsonData['choices'][0]['message']['content'];
       return responseMessage;
     } else {
-      throw Exception('Failed to load sentence on $apiModelChatGpt : ${response.statusCode}');
+      throw Exception(ErrorMessages.chatGptError);
     }
   }
 
@@ -300,7 +306,7 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final imageUrl = responseJsonData['data'][0]['url'];
       return imageUrl;
     } else {
-      throw Exception('Failed to load sentence on $apiModelDalle : ${response.statusCode}');
+      throw Exception(ErrorMessages.dalleError);
     }
   }
 }
