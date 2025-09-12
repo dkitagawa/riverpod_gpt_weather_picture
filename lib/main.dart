@@ -70,24 +70,80 @@ class MyHomePage extends StatelessWidget {
 class WeatherImage extends ConsumerWidget {
   const WeatherImage({super.key});
 
+  /// 天気画像の表示専用ウィジェット
+  /// 責任: 画像URLが存在する場合の画像表示のみ
+  /// エラーハンドリングは上位ウィジェットに委譲
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weatherState = ref.watch(chatGPTRequestProvider);
-
-    return weatherState.when(
-      data: (state) {
-        return state.weatherImageUrl.isNotEmpty
-            ? Image.network(state.weatherImageUrl)
-            : const Text('天気情報がありません');
-      },
+    
+     return weatherState.when(
+       data: (state) {
+        //画像表示の責任のみに集中
+        if (state.weatherImageUrl.isNotEmpty) {
+          return _buildWeatherImage(state.weatherImageUrl);
+        }
+        return _buiildNoImagePlaceholder();
+       },
       loading: () {
-        return const Center(child: CircularProgressIndicator());
+        return _buildLoadingIndicator();
       },
       error: (err, stack) {
-        return Text('エラーが発生しました: $err');
+        return _buildErrorDisplay(err);
       },
     );
   }
+}
+
+/// 天気画像の表示
+Widget _buildWeatherImage(String imageUrl) {
+  return Image.network(
+    imageUrl,
+    fit: BoxFit.contain,
+    errorBuilder: (context, error, stackTrace) {
+      return _buildImageLoadError();
+    }
+  );
+}
+
+/// 画像がない場合のプレースホルダー
+Widget _buiildNoImagePlaceholder() {
+  return const Text(
+    '天気情報がありません',
+    style: TextStyle(
+      color: Colors.black54,
+      fontSize: 16,
+    ),
+  );
+}
+
+/// ローディング表示
+Widget _buildLoadingIndicator() {
+  return const Center(
+    child: CircularProgressIndicator(),
+  );
+}
+
+/// エラー表示
+Widget _buildErrorDisplay(Object error) {
+  return Text(
+    'エラーが発生しました: $error',
+    style: const TextStyle(
+      color: Colors.red,
+      fontSize: 14,
+    ),
+  );
+}
+
+/// 画像読み込みエラー表示
+Widget _buildImageLoadError() {
+  return const Text(
+    '画像の読み込みに失敗しました',
+    style: TextStyle(
+      color: Colors.orange,
+      fontSize: 14,
+    ),
+  );
 }
 
 class WeatherText extends ConsumerWidget {
