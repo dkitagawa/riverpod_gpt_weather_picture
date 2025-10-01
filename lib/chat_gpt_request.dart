@@ -163,7 +163,11 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       );
       return _handleChatGPTResponse(response);
     } catch (e) {
-      throw Exception(ErrorMessages.apiConnectionError);
+      final detailedMessage = ErrorMessages.createDetailedError(
+        ErrorMessages.apiConnectionError,
+        e
+      );
+      throw Exception(detailedMessage);
     }
   }
 
@@ -180,7 +184,11 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       );
       return _handleDallEResponse(response);
     } catch (e) {
-      throw Exception(ErrorMessages.apiConnectionError);
+      final detailedMessage = ErrorMessages.createDetailedError(
+        ErrorMessages.apiConnectionError,
+        e
+      );
+      throw Exception(detailedMessage);
     }
   }
 
@@ -294,7 +302,15 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final responseMessage = responseJsonData['choices'][0]['message']['content'];
       return responseMessage;
     } else {
-      throw Exception(ErrorMessages.chatGptError);
+      final errorMessage = ErrorMessages.getHttpErrorMessage(
+        response.statusCode,
+        'ChatGPT'
+      );
+      final detailedMessage = ErrorMessages.createDetailedError(
+        errorMessage,
+        'HTTP ${response.statusCode}: ${response.body}'
+      );
+      throw Exception(detailedMessage);
     }
   }
 
@@ -306,7 +322,15 @@ class ChatGPTRequest extends _$ChatGPTRequest {
       final imageUrl = responseJsonData['data'][0]['url'];
       return imageUrl;
     } else {
-      throw Exception(ErrorMessages.dalleError);
+      final errorMessage = ErrorMessages.getHttpErrorMessage(
+        response.statusCode,
+        'DALL-E'
+      );
+      final detailedMessage = ErrorMessages.createDetailedError(
+        errorMessage,
+        'HTTP ${response.statusCode}: ${response.body}'
+      );
+      throw Exception(detailedMessage);
     }
   }
 }
